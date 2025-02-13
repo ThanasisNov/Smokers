@@ -1,24 +1,29 @@
 import java.util.concurrent.Semaphore;
 
 public class Table {
-    // Semaphores για πόρους
-    public Semaphore r1 = new Semaphore(0);  // δηλώνει "βρέθηκε r1 στο τραπέζι"
-    public Semaphore r2 = new Semaphore(0);  // δηλώνει "βρέθηκε r2 στο τραπέζι"
-    public Semaphore r3 = new Semaphore(0);  // δηλώνει "βρέθηκε r3 στο τραπέζι"
+    // Semaphores για τους πόρους (fair)
+    public Semaphore r1 = new Semaphore(0, true);
+    public Semaphore r2 = new Semaphore(0, true);
+    public Semaphore r3 = new Semaphore(0, true);
 
-    // Semaphores για τους πελάτες
-    public Semaphore client12 = new Semaphore(0);  // C12 θέλει r1, r2
-    public Semaphore client13 = new Semaphore(0);  // C13 θέλει r1, r3
-    public Semaphore client23 = new Semaphore(0);  // C23 θέλει r2, r3
+    // Semaphores για τους πελάτες (fair)
+    public Semaphore client12 = new Semaphore(0, true);
+    public Semaphore client13 = new Semaphore(0, true);
+    public Semaphore client23 = new Semaphore(0, true);
 
-    // Ελεγχος προσβασιμότητας του τραπεζιού
-    public Semaphore tableEmpty = new Semaphore(1); // Αν είναι 1, σημαίνει ότι μπορεί να ξαναμπεί "νέος" πόρος
+    // Το τραπέζι έχει 2 θέσεις για πόρους (fair)
+    public Semaphore tableEmpty = new Semaphore(2, true);
 
-    // Καταστάσεις αν υπάρχει ήδη κάποιος πόρος στο τραπέζι
+    // Flags για τους πόρους που υπάρχουν ήδη στο τραπέζι
     public boolean hasR1 = false;
     public boolean hasR2 = false;
     public boolean hasR3 = false;
 
-    // Για απλούστευση, μπορούμε να χρησιμοποιήσουμε κι έναν κοινό mutex
-    public Semaphore mutex = new Semaphore(1);
+    // Mutex για συγχρονισμό στους pushers (fair)
+    public Semaphore mutex = new Semaphore(1, true);
+
+    // Semaphores για round-robin scheduling των servers (fair)
+    public Semaphore semS12 = new Semaphore(1, true);  // S12 ξεκινάει (permit 1)
+    public Semaphore semS13 = new Semaphore(0, true);
+    public Semaphore semS23 = new Semaphore(0, true);
 }
